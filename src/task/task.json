@@ -65,6 +65,15 @@
             "groupName": "configurationOptions"
         },
         {
+            "name": "CppCompatibillityMode",
+            "type": "boolean",
+            "label": "Run Inspectcode-x86",
+            "defaultValue": "false",
+            "required": true,
+            "helpMarkDown": "If selected, the inspectCode-x86 will be used instead of inspectCode.exe which does not work with C++ projects",
+            "groupName": "configurationOptions"
+        },
+        {
             "name": "CommandLineInterfacePath",
             "type": "filePath",
             "label": "Path to command line tool",

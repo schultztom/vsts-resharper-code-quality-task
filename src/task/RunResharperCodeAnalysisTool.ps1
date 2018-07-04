@@ -8,6 +8,7 @@ param
     [string] $buildId="Unlabeled_Build",
     [string] $inspectCodeResultsPathOverride,
     [string] $resharperNugetVersion="Latest"
+    [string] $cppCompatibillityMode="false"
 )
 
 function Set-Results {
@@ -23,8 +24,17 @@ function Set-Results {
 }
 
 # Gather inputs
+[bool] $cppCompatibillityModeBool = [System.Convert]::ToBoolean($cppCompatibillityMode)
+if ($cppCompatibillityModeBool) 
+{
+    $inspectCodeExe = "InspectCode.x86.exe";
+}
+else
+{
+    $inspectCodeExe = "InspectCode.exe";
+} 
 
-$inspectCodeExePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($commandLineInterfacePath, "InspectCode.exe"));
+$inspectCodeExePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($commandLineInterfacePath, $inspectCodeExe));
 $tempDownloadFolder = $Env:BUILD_STAGINGDIRECTORY
 
 if(!(Test-Path $inspectCodeExePath)) {
@@ -55,20 +65,20 @@ if(!(Test-Path $inspectCodeExePath)) {
 
     $resharperPreInstalledDirectoryPath = [System.IO.Directory]::EnumerateDirectories($tempDownloadFolder, "*JetBrains*")[0]
     if(!(Test-Path $resharperPreInstalledDirectoryPath)) {
-        Throw [System.IO.FileNotFoundException] "InspectCode.exe was not found at $inspectCodeExePath or $resharperPreInstalledDirectoryPath"
+        Throw [System.IO.FileNotFoundException] "$inspectCodeExe was not found at $inspectCodeExePath or $resharperPreInstalledDirectoryPath"
     }
 
     Write-Output "Resharper CLT downloaded"
 
     $commandLineInterfacePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($resharperPreInstalledDirectoryPath, "tools"));
-    $inspectCodeExePath =  [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($commandLineInterfacePath, "InspectCode.exe"));
+    $inspectCodeExePath =  [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($commandLineInterfacePath, $inspectCodeExe));
 }
 
 if(!(Test-Path $inspectCodeExePath)) {
-    Throw [System.IO.FileNotFoundException] "InspectCode.exe was not found at $inspectCodeExePath"
+    Throw [System.IO.FileNotFoundException] "$inspectCodeExe was not found at $inspectCodeExePath"
 }
 
-[string] $solutionOrProjectFullPath = [System.IO.Path]::GetFullPath($solutionOrProjectPath.Replace("`"",""));
+[string] $solutionOrProjectFullPath = [System.IO.Path]::GetFullPath($solutionOrProjectPath.Replace("`",""));
 
 if(!(Test-Path $solutionOrProjectFullPath)) {
     Throw [System.IO.FileNotFoundException] "No solution or project found at $solutionOrProjectFullPath"
